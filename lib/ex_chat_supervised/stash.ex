@@ -15,10 +15,19 @@ defmodule ExChatSupervised.Stash do
     GenServer.call(__MODULE__, {:get, channel_name})
   end
 
+  def clean do
+    GenServer.cast(__MODULE__, :clean)
+  end
+
   def handle_cast({:insert, channel_name, member}, ets_table) do
     members = do_get(ets_table, channel_name)
     updated_members = put_member(members, member)
     :ets.insert(ets_table, {channel_name, updated_members})
+    {:noreply, ets_table}
+  end
+
+  def handle_cast(:clean, ets_table) do
+    :ets.delete_all_objects(ets_table)
     {:noreply, ets_table}
   end
 
@@ -33,6 +42,6 @@ defmodule ExChatSupervised.Stash do
     :ets.lookup(ets_table, channel_name) |> get_members
   end
 
-  defp get_members([{ channel_name, members }]), do: members
+  defp get_members([{ _channel_name, members }]), do: members
   defp get_members([]), do: MapSet.new()
 end

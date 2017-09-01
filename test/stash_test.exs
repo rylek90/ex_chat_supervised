@@ -1,9 +1,10 @@
-defmodule ExChatSupervisedTest do
+defmodule ExChatSupervisedStashTest do
   use ExUnit.Case
   alias ExChatSupervised.Stash
 
   setup do
     ExChatSupervised.Application.start(:a_wez, :spadaj)
+    Stash.clean()
     :ok
   end
 
@@ -14,6 +15,12 @@ defmodule ExChatSupervisedTest do
     Process.exit(pid, :kill)
     Process.sleep(100)
     assert Stash.get(:sample) == MapSet.new([:jan])
+  end
+
+  test "stash should clear properly" do
+    Stash.insert(:sample, :jan)
+    Stash.clean()
+    assert Stash.get(:sample) == MapSet.new()
   end
 
   test "stash should store only one entry per member" do
