@@ -7,21 +7,24 @@ defmodule ExChatSupervised.Application do
 
   def test do
 
-    ExChatSupervised.Channel.send_message(:chuj, %ExChatSupervised.Message{from: "dupa", body: "chuj"})
-    ExChatSupervised.Channel.join(:chuj, "dupa")
-    ExChatSupervised.Channel.send_message(:chuj, %ExChatSupervised.Message{from: "dupa", body: "chuj"})
+    ExChatSupervised.Channel.send_message(:some_key, %ExChatSupervised.Message{from: "dupa", body: "some_key"})
+    ExChatSupervised.Channel.join(:some_key, "dupa")
+    ExChatSupervised.Channel.send_message(:some_key, %ExChatSupervised.Message{from: "dupa", body: "some_key"})
     Process.sleep(100)
-    pid = Process.whereis(:chuj)
+    pid = Process.whereis(:some_key)
     Process.exit(pid, :kill)
     Process.sleep(100)
-    ExChatSupervised.Channel.send_message(:chuj, %ExChatSupervised.Message{from: "dupa", body: "chuj"})
+    ExChatSupervised.Channel.send_message(:some_key, %ExChatSupervised.Message{from: "dupa", body: "some_key"})
   end
 
   def start(_type, _args) do
     import Supervisor.Spec
+    ets_table = :ets.new(:members_registry, [:public, :set])
     # List all child processes to be supervised
     children = [
-      worker(ExChatSupervised.Channel, [:chuj, []])
+      worker(ExChatSupervised.Stash, [ets_table])
+      # worker(ExChatSupervised.Channel, [:some_key, []]),
+
       # Starts a worker by calling: ExChatSupervised.Worker.start_link(arg)
       # {ExChatSupervised.Worker, arg},
     ]

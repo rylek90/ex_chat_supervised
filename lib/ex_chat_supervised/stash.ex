@@ -1,7 +1,7 @@
 defmodule ExChatSupervised.Stash do
   use GenServer
 
-  def start_link(ets_table \\ :ets.new(:buckets_registry, [:public, :set])) do
+  def start_link(ets_table) do
     GenServer.start_link(__MODULE__, ets_table, name: __MODULE__)
   end
 
