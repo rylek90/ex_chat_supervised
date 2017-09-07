@@ -7,6 +7,7 @@ defmodule ExChatSupervised.Channel do
     GenServer.start_link(__MODULE__, %ChannelState{name: name},name: name)
   end
 
+  # do it better
   def init(state = %ChannelState{ name: name }) do
     members_from_stash = Stash.get(name)
     {:ok, %ChannelState{ state | members: members_from_stash }}
